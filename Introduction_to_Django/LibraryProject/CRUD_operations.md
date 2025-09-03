@@ -15,24 +15,3 @@ book = Book.objects.create(
 print(book)
 # <Book: 1984 by George Orwell>
 
-# Get all books
-books = Book.objects.all()
-print(books)
-
-# Get a specific book by ID
-book = Book.objects.get(id=1)
-print(book)
-
-# Filter books by author
-orwell_books = Book.objects.filter(author="George Orwell")
-print(orwell_books)
-
-book = Book.objects.get(id=1)
-book.price = 25.00
-book.save()
-print(book.price)  # 25.00
-
-book = Book.objects.get(id=1)
-book.delete()
-print(Book.objects.all())
-
