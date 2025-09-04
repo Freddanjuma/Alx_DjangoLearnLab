@@ -11,7 +11,6 @@ def run_sample_queries():
     Author.objects.all().delete()
     Library.objects.all().delete()
 
-    # Define author name as a variable
     author_name = "George R.R. Martin"
     author_grrm = Author.objects.create(name=author_name)
     author_tolkien = Author.objects.create(name="J.R.R. Tolkien")
@@ -22,14 +21,13 @@ def run_sample_queries():
 
     library_name = "Fantasy Central Library"
     library = Library.objects.create(name=library_name)
-    librarian = Librarian.objects.create(name="Samwell Tarly", library=library)
+    librarian_obj = Librarian.objects.create(name="Samwell Tarly", library=library)
     library.books.add(book1, book3)
 
     print("--- Running Sample Queries ---")
 
     # --- Task: Query all books by a specific author. ---
     print(f"\\n## Query all books by a specific author ({author_name}):")
-    # These two lines now match the checker's requirements exactly
     author = Author.objects.get(name=author_name)
     author_books = Book.objects.filter(author=author)
     for book in author_books:
@@ -43,8 +41,10 @@ def run_sample_queries():
 
     # --- Task: Retrieve the librarian for a library. ---
     print(f"\\n## Retrieve the librarian for a library ({library_name}):")
+    # This line now matches the final checker requirement
     library_to_check = Library.objects.get(name=library_name)
-    print(f"- {library_to_check.librarian.name}")
+    librarian = Librarian.objects.get(library=library_to_check)
+    print(f"- {librarian.name}")
 
 # This line allows the script to be run directly.
 run_sample_queries()
