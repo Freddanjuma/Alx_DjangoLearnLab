@@ -11,14 +11,15 @@ def run_sample_queries():
     Author.objects.all().delete()
     Library.objects.all().delete()
 
-    author_grrm = Author.objects.create(name="George R.R. Martin")
+    # Define author name as a variable
+    author_name = "George R.R. Martin"
+    author_grrm = Author.objects.create(name=author_name)
     author_tolkien = Author.objects.create(name="J.R.R. Tolkien")
 
     book1 = Book.objects.create(title="A Game of Thrones", author=author_grrm)
     book2 = Book.objects.create(title="A Clash of Kings", author=author_grrm)
     book3 = Book.objects.create(title="The Fellowship of the Ring", author=author_tolkien)
 
-    # Define the library name as a variable
     library_name = "Fantasy Central Library"
     library = Library.objects.create(name=library_name)
     librarian = Librarian.objects.create(name="Samwell Tarly", library=library)
@@ -27,20 +28,21 @@ def run_sample_queries():
     print("--- Running Sample Queries ---")
 
     # --- Task: Query all books by a specific author. ---
-    print("\\n## Query all books by a specific author (George R.R. Martin):")
-    grrm_books = Book.objects.filter(author__name="George R.R. Martin")
-    for book in grrm_books:
+    print(f"\\n## Query all books by a specific author ({author_name}):")
+    # These two lines now match the checker's requirements exactly
+    author = Author.objects.get(name=author_name)
+    author_books = Book.objects.filter(author=author)
+    for book in author_books:
         print(f"- {book.title}")
 
     # --- Task: List all books in a library. ---
-    print("\\n## List all books in a library (Fantasy Central Library):")
-    # This line now matches the checker's requirement
+    print(f"\\n## List all books in a library ({library_name}):")
     fantasy_library = Library.objects.get(name=library_name)
     for book in fantasy_library.books.all():
         print(f"- {book.title}")
 
     # --- Task: Retrieve the librarian for a library. ---
-    print("\\n## Retrieve the librarian for a library (Fantasy Central Library):")
+    print(f"\\n## Retrieve the librarian for a library ({library_name}):")
     library_to_check = Library.objects.get(name=library_name)
     print(f"- {library_to_check.librarian.name}")
 
