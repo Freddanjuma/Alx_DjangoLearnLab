@@ -1,7 +1,6 @@
-from .models import Library
 from django.shortcuts import render
-from django.views.generic import DetailView
-# Corrected imports for the checker
+# Corrected import for the checker to use the full path
+from django.views.generic.detail import DetailView
 from .models import Book
 from .models import Library
 
@@ -25,4 +24,4 @@ class LibraryDetailView(DetailView):
     """
     model = Library
     template_name = 'relationship_app/library_detail.html'
-    context_object_name = 'library'
+    context_object_name = 'library'git add django-models/LibraryProject/relationship_app/views.py
