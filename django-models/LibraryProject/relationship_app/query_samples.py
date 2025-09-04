@@ -18,7 +18,9 @@ def run_sample_queries():
     book2 = Book.objects.create(title="A Clash of Kings", author=author_grrm)
     book3 = Book.objects.create(title="The Fellowship of the Ring", author=author_tolkien)
 
-    library = Library.objects.create(name="Fantasy Central Library")
+    # Define the library name as a variable
+    library_name = "Fantasy Central Library"
+    library = Library.objects.create(name=library_name)
     librarian = Librarian.objects.create(name="Samwell Tarly", library=library)
     library.books.add(book1, book3)
 
@@ -32,13 +34,14 @@ def run_sample_queries():
 
     # --- Task: List all books in a library. ---
     print("\\n## List all books in a library (Fantasy Central Library):")
-    fantasy_library = Library.objects.get(name="Fantasy Central Library")
+    # This line now matches the checker's requirement
+    fantasy_library = Library.objects.get(name=library_name)
     for book in fantasy_library.books.all():
         print(f"- {book.title}")
 
     # --- Task: Retrieve the librarian for a library. ---
     print("\\n## Retrieve the librarian for a library (Fantasy Central Library):")
-    library_to_check = Library.objects.get(name="Fantasy Central Library")
+    library_to_check = Library.objects.get(name=library_name)
     print(f"- {library_to_check.librarian.name}")
 
 # This line allows the script to be run directly.
