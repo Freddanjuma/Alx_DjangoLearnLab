@@ -21,3 +21,21 @@ class LibraryDetailView(DetailView):
     # This path is also now correct
     template_name = 'relationship_app/library_detail.html'
     context_object_name = 'library'
+
+    # Add these imports to the top of your views.py file
+from django.shortcuts import render, redirect
+from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.views import LoginView, LogoutView
+
+# New view for user registration
+def register(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('all-books') # Redirect to a home page after registration
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})
