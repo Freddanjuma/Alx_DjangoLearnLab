@@ -1,15 +1,20 @@
 from django.urls import path
-# Import the entire views module to satisfy the checker
+from django.contrib.auth import views as auth_views
 from . import views
-from django.contrib.auth.views import LoginView, LogoutView
+
+app_name = 'relationship_app'
 
 urlpatterns = [
     # Paths for book and library views
     path('books/', views.list_books, name='all-books'),
     path('library/<int:pk>/', views.LibraryDetailView.as_view(), name='library-detail'),
 
-    # This line now explicitly uses "views.register"
+    # Authentication URLs - FIXED TEMPLATE PATHS
     path('register/', views.register, name='register'),
-    path('login/', LoginView.as_view(template_name='relationship_app/registration/login.html'), name='login'),
-    path('logout/', LogoutView.as_view(template_name='relationship_app/registration/logout.html'), name='logout'),
+    path('login/', views.user_login, name='login'),  #  custom view
+    path('logout/', auth_views.LogoutView.as_view(
+        template_name='relationship_app/logout.html',  # FIXED PATH
+        next_page='relationship_app:login'
+    ), name='logout'),
+    path('profile/', views.profile, name='profile'),  
 ]
