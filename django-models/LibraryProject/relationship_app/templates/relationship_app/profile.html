@@ -1,14 +1,11 @@
-<!DOCTYPE html>
+><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Profile</title>
 </head>
 <body>
-    <h1>Welcome, {{ user.username }}!</h1>
-    <p>Email: {{ user.email|default:"Not provided" }}</p>
-    <p>Member since: {{ user.date_joined|date:"F j, Y" }}</p>
-    <p><a href="{% url 'relationship_app:logout' %}">Logout</a></p>
-    <p><a href="{% url 'relationship_app:all-books' %}">View Books</a></p>
+    <h1>Welcome, {{ user.username }}</h1>
+    <a href="{% url 'relationship_app:logout' %}">Logout</a>
 </body>
 </html>
