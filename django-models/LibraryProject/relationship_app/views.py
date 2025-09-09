@@ -65,16 +65,3 @@ def librarian_view(request):
 @user_passes_test(is_member)
 def member_view(request):
     return render(request, "relationship_app/member_view.html")
-
-from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
-
-@login_required
-def redirect_after_login(request):
-    role = request.user.userprofile.role
-    if role == "Admin":
-        return redirect("relationship_app:admin_view")
-    elif role == "Librarian":
-        return redirect("relationship_app:librarian_view")
-    else:
-        return redirect("relationship_app:member_view")

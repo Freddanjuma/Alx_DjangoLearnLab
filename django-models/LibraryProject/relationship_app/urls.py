@@ -1,38 +1,16 @@
-from django.contrib import admin
 from django.urls import path
-from django.shortcuts import redirect
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('register/', __import__('relationship_app.views').views.register, name='register'),
-    path('login/', __import__('relationship_app.views').views.login_view, name='login'),
-    path('logout/', __import__('relationship_app.views').views.logout_view, name='logout'),
-    path('profile/', __import__('relationship_app.views').views.profile, name='profile'),
-
-    # redirect root ("/") to login
-    path('', lambda request: redirect('login')),
-]
-from django.urls import path
-from . import views
+from django.contrib.auth import views as auth_views
 
 app_name = "relationship_app"
 
 urlpatterns = [
-    path("admin-view/", views.admin_view, name="admin_view"),
-    path("librarian-view/", views.librarian_view, name="librarian_view"),
-    path("member-view/", views.member_view, name="member_view"),
-]
-from django.contrib import admin
-from django.urls import path, include
+    path("login/", auth_views.LoginView.as_view(template_name="relationship_app/login.html"), name="login"),
+    path("logout/", auth_views.LogoutView.as_view(template_name="relationship_app/logout.html"), name="logout"),
+    path("register/", __import__('relationship_app.views').views.register, name="register"),
+    path("profile/", __import__('relationship_app.views').views.profile_view, name="profile"),
 
-urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("", include("relationship_app.urls")),  # <-- include our app routes
+    # Role-based views
+    path("admin-view/", __import__('relationship_app.views').views.admin_view, name="admin_view"),
+    path("librarian-view/", __import__('relationship_app.views').views.librarian_view, name="librarian_view"),
+    path("member-view/", __import__('relationship_app.views').views.member_view, name="member_view"),
 ]
-urlpatterns = [
-    path("admin-view/", views.admin_view, name="admin_view"),
-    path("librarian-view/", views.librarian_view, name="librarian_view"),
-    path("member-view/", views.member_view, name="member_view"),
-    path("redirect-after-login/", views.redirect_after_login, name="redirect_after_login"),
-]
-
