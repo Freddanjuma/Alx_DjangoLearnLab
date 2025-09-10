@@ -65,3 +65,21 @@ def librarian_view(request):
 @user_passes_test(is_member)
 def member_view(request):
     return render(request, "relationship_app/member_view.html")
+
+from django.contrib.auth.decorators import permission_required
+from django.shortcuts import render, get_object_or_404
+from bookshelf.models import Book
+
+@permission_required("bookshelf.can_add_book")
+def add_book(request):
+    return render(request, "relationship_app/add_book.html")
+
+@permission_required("bookshelf.can_edit_book")
+def edit_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    return render(request, "relationship_app/edit_book.html", {"book": book})
+
+@permission_required("bookshelf.can_delete_book")
+def delete_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    return render(request, "relationship_app/delete_book.html", {"book": book})
