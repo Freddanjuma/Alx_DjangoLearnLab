@@ -15,7 +15,7 @@ urlpatterns = [
     path("member-view/", views.member_view, name="member_view"),
 
     # Secured book CRUD views
-    path("add-book/", views.add_book, name="add_book"),
-    path("edit-book/<int:pk>/", views.edit_book, name="edit_book"),
-    path("delete-book/<int:pk>/", views.delete_book, name="delete_book"),
+    path("add_book/", views.add_book, name="add_book"),
+    path("edit_book/<int:pk>/", views.edit_book, name="edit_book"),
+    path("delete_book/<int:pk>/", views.delete_book, name="delete_book"),
 ]
