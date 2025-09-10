@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from . import views  # make sure you import your views normally
+from . import views  
 
 app_name = "relationship_app"
 
