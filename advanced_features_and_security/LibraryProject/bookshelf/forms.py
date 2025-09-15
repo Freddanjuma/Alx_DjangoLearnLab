@@ -27,3 +27,17 @@ class AuthorForm(forms.ModelForm):
     class Meta:
         model = Author
         fields = "__all__"
+
+        # bookshelf/forms.py
+
+# (Your existing imports and other form definitions would be here)
+
+from django import forms # Ensure this is at the top if not already there
+from .models import Book # Ensure Book model is imported
+
+# Add the BookForm class here, typically at the bottom or logically grouped
+class BookForm(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields = ['title', 'author', 'published_date', 'isbn']
+        # You can customize widgets here later if needed

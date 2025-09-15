@@ -38,11 +38,29 @@ class Author(models.Model):
     def __str__(self):
         return self.name
 
-# --- Book model (already here with correct fields) ---
+# bookshelf/models.py
+
+# ... (existing imports and other models) ...
+
 class Book(models.Model):
     title = models.CharField(max_length=200)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     published_date = models.DateField(blank=True, null=True)
     isbn = models.CharField(max_length=13, blank=True, null=True, unique=True)
+
+    class Meta:
+        ordering = ["title"]
+        # Custom Permissions for the Book model
+        # These permissions are used to control access to Book-related actions
+        # in views, restricting who can view, create, edit, or delete books.
+        permissions = [
+            ("can_view_book", "Can view book"),        # Allows viewing of book details/list
+            ("can_create_book", "Can create book"),    # Allows adding new book instances
+            ("can_edit_book", "Can edit book"),        # Allows modifying existing book instances
+            ("can_delete_book", "Can delete book"),    # Allows removing book instances
+        ]
+
     def __str__(self):
         return self.title
+
+# ... (rest of your models in this file) ...
