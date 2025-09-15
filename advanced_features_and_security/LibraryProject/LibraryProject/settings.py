@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'accounts',
 ]
 
-AUTH_USER_MODEL = "accounts.CustomUser"
+AUTH_USER_MODEL = 'bookshelf.CustomUser'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -132,5 +132,3 @@ LOGOUT_REDIRECT_URL = "/login/"
 LOGIN_REDIRECT_URL = "relationship_app:redirect_after_login"
 LOGOUT_REDIRECT_URL = "relationship_app:login"  #  redirect to login after logout
 
-# Custom user model
-AUTH_USER_MODEL = "accounts.CustomUser"

@@ -1,20 +1,30 @@
-from django.shortcuts import render, redirect
-from accounts.forms import CustomUserCreationForm
-from django.contrib.auth.forms import AuthenticationForm
+# relationship_app/views.py
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.forms import AuthenticationForm # Keep this standard form
 from django.contrib.auth import login, logout
 from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test, permission_required
+
+# --- Import forms for CustomUser from bookshelf app (where CustomUser now lives) ---
+# If you created CustomUserCreationForm in bookshelf/forms.py
+from bookshelf.forms import CustomUserCreationForm # <-- CHANGED IMPORT PATH
+
+# --- Import models from bookshelf ---
+from bookshelf.models import Book # Keep this import, it's correct now
+from .forms import BookForm # This is BookForm defined in relationship_app/forms.py
 
 # Registration view
 def register_view(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST) # Use CustomUserCreationForm
         if form.is_valid():
             user = form.save()
             login(request, user)  # auto login after registration
             messages.success(request, "Registration successful.")
             return redirect("relationship_app:login")
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm() # Use CustomUserCreationForm
     return render(request, "relationship_app/register.html", {"form": form})
 
 # Login view
@@ -40,9 +50,6 @@ def logout_view(request):
 def profile_view(request):
     return render(request, "relationship_app/profile.html")
 
-from django.shortcuts import render
-from django.contrib.auth.decorators import user_passes_test
-
 # Helper functions for role checking
 def is_admin(user):
     return hasattr(user, "userprofile") and user.userprofile.role == "Admin"
@@ -67,38 +74,33 @@ def librarian_view(request):
 def member_view(request):
     return render(request, "relationship_app/member_view.html")
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import permission_required
-from bookshelf.models import Book
-from .forms import BookForm
-
-@permission_required("relationship_app.can_add_book")
+@permission_required("bookshelf.add_book") # Correct permission name format for Book model in 'bookshelf'
 def add_book(request):
     if request.method == "POST":
         form = BookForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect("relationship_app:book_list")
+            return redirect("relationship_app:book_list") # Assuming you have a book_list URL name
     else:
         form = BookForm()
     return render(request, "relationship_app/add_book.html", {"form": form})
 
-@permission_required("relationship_app.can_change_book")
+@permission_required("bookshelf.change_book") # Correct permission name format
 def edit_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
     if request.method == "POST":
         form = BookForm(request.POST, instance=book)
         if form.is_valid():
             form.save()
-            return redirect("relationship_app:book_list")
+            return redirect("relationship_app:book_list") # Assuming you have a book_list URL name
     else:
         form = BookForm(instance=book)
     return render(request, "relationship_app/edit_book.html", {"form": form})
 
-@permission_required("relationship_app.can_delete_book")
+@permission_required("bookshelf.delete_book") # Correct permission name format
 def delete_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
     if request.method == "POST":
         book.delete()
-        return redirect("relationship_app:book_list")
+        return redirect("relationship_app:book_list") # Assuming you have a book_list URL name
     return render(request, "relationship_app/delete_book.html", {"book": book})
