@@ -1,0 +1,23 @@
+{% extends "relationship_app/base.html" %} {# This is the correct and only extends tag you need #}
+
+{# bookshelf/templates/bookshelf/book_form.html #}
+{% comment %}
+This template is used for both creating new books and editing existing ones.
+It expects a 'form' context variable (an instance of BookForm)
+and a 'form_type' string ('Create' or 'Edit').
+{% endcomment %}
+
+{% block title %}{{ form_type }} Book{% endblock %}
+
+{% block content %}
+    <h1>{{ form_type }} Book</h1>
+
+    <form method="post">
+        {% csrf_token %} {# Required for CSRF protection against cross-site request forgery attacks #}
+
+        {{ form.as_p }} {# Renders each form field in its own paragraph for simplicity #}
+
+        <button type="submit">Save</button>
+        <a href="{% url 'book_list' %}">Cancel</a>
+    </form>
+{% endblock content %}

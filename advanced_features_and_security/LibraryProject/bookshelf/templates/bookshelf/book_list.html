@@ -1,0 +1,30 @@
+{% extends "relationship_app/base.html" %} {# Extend your project's base template #}
+
+{# bookshelf/templates/bookshelf/book_list.html #}
+{% comment %}
+This template displays a list of all books.
+It expects a 'books' context variable (a queryset of Book objects).
+Includes a link to add new books if the user has permission.
+{% endcomment %}
+
+{% block title %}Book List{% endblock %}
+
+{% block content %}
+    <h1>Book List</h1>
+
+    {% if books %}
+        <ul>
+            {% for book in books %}
+                <li><a href="{% url 'book_detail' book.pk %}">{{ book.title }}</a> by {{ book.author }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No books available yet. Be the first to add one!</p>
+    {% endif %}
+
+    <p>
+        {% if perms.bookshelf.can_create_book %}
+            <a href="{% url 'book_create' %}">Add New Book</a>
+        {% endif %}
+    </p>
+{% endblock content %}

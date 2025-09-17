@@ -1,17 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-</head>
-<body>
+{% extends "relationship_app/base.html" %}
+
+{# relationship_app/templates/login.html #}
+{% comment %}
+This template provides the login form for users.
+It extends the base template for consistent styling and layout.
+Includes CSRF protection for the POST request.
+{% endcomment %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
     <h1>Login</h1>
     <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
+        {% csrf_token %} {# Required for CSRF protection against cross-site request forgery attacks #}
+
+        {{ form.as_p }} {# Renders the login form fields #}
+
         <button type="submit">Login</button>
     </form>
-    <a href="{% url 'relationship_app:register' %}">Register</a>
-</body>
-</html>
+    <p>Don't have an account? <a href="{% url 'relationship_app:register' %}">Register here</a>.</p>
+{% endblock content %}

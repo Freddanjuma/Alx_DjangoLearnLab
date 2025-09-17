@@ -1,16 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Bookshelf</title>
+    {# The title block allows child templates to set their own titles #}
+    <title>{% block title %}Bookshelf{% endblock %}</title>
 </head>
 <body>
-    <nav>
-        <a href="{% url 'login' %}">Login</a> |
-        <a href="{% url 'logout' %}">Logout</a> |
-        <a href="{% url 'register' %}">Register</a>
-    </nav>
-    <hr>
-    {% block content %}
-    {% endblock %}
-</body>
-</html>
+       <nav>
+     {% if user.is_authenticated %}
+        <span>Welcome, {{ user.username }}!</span> |
+        <form action="{% url 'relationship_app:logout' %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" style="background:none; border:none; padding:0; cursor:pointer; color: blue; text-decoration: underline;">Logout</button>
+        </form>
+        | <a href="{% url 'relationship_app:profile' %}">Profile</a>
+        {# Role-specific links #}
+        {% if user.is_superuser %} | <a href="{% url 'relationship_app:admin_view' %}">Admin Dashboard</a> {% endif %}
+        {# UPDATED LINE FOR LIBRARIAN - uses new context variable #}
+        {% if is_librarian %} | <a href="{% url 'relationship_app:librarian_view' %}">Librarian Panel</a> {% endif %}
+        {# UPDATED LINE FOR MEMBERS - uses new context variable #}
+        {% if is_member %} | <a href="{% url 'relationship_app:member_view' %}">Member Area</a> {% endif %}
+
+    {% else %}
+        <a href="{% url 'relationship_app:login' %}">Login</a> |
+        <a href="{% url 'relationship_app:register' %}">Register</a>
+    {% endif %}
+</nav>

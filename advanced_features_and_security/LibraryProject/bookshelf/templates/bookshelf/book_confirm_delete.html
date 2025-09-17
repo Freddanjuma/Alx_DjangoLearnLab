@@ -1,0 +1,20 @@
+{% extends "relationship_app/base.html" %} {# This MUST be the very first line in the file #}
+
+{# bookshelf/templates/bookshelf/book_confirm_delete.html #}
+{% comment %}
+This template confirms the deletion of a book.
+It expects a 'book' context variable.
+{% endcomment %}
+
+{% block title %}Confirm Delete{% endblock %}
+
+{% block content %}
+    <h1>Delete Book</h1>
+    <p>Are you sure you want to delete the book: "<strong>{{ book.title }}</strong>"?</p>
+
+    <form method="post">
+        {% csrf_token %} {# Required for CSRF protection #}
+        <button type="submit" class="button-danger">Confirm Delete</button>
+        <a href="{% url 'book_detail' book.pk %}" class="button">Cancel</a>
+    </form>
+{% endblock content %}

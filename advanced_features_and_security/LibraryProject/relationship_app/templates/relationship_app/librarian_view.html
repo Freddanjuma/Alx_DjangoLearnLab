@@ -1,8 +1,18 @@
-<!DOCTYPE html>
-<html>
-<head><title>Librarian Dashboard</title></head>
-<body>
+{% extends "relationship_app/base.html" %}
+
+{# relationship_app/templates/librarian_view.html #}
+{% comment %}
+This template displays the dashboard for a logged-in librarian.
+It extends the base template for consistent styling and layout.
+{% endcomment %}
+
+{% block title %}Librarian Dashboard{% endblock %}
+
+{% block content %}
     <h1>Welcome, Librarian!</h1>
     <p>You can manage books and members.</p>
-</body>
-</html>
+    {# Add any librarian-specific content or links here #}
+    <p><a href="{% url 'relationship_app:add_book' %}">Add a new book</a></p>
+    <p><a href="{% url 'relationship_app:list_books' %}">Manage all books</a></p>
+    {# Add links to manage members etc. #}
+{% endblock content %}

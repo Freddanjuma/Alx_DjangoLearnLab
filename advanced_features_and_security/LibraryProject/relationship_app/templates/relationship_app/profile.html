@@ -1,11 +1,20 @@
-><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Profile</title>
-</head>
-<body>
-    <h1>Welcome, {{ user.username }}</h1>
-    <a href="{% url 'relationship_app:logout' %}">Logout</a>
-</body>
-</html>
+{% extends "relationship_app/base.html" %}
+
+{# relationship_app/templates/profile_view.html #}
+{% comment %}
+This template displays the user's profile information.
+It extends the base template for consistent styling and layout.
+{% endcomment %}
+
+{% block title %}Profile - {{ user.username }}{% endblock %}
+
+{% block content %}
+    <h1>Welcome, {{ user.username }}!</h1>
+    <p>This is your profile page.</p>
+    {# Add more profile details here, e.g., email, groups, etc. #}
+    {% if user.email %}<p>Email: {{ user.email }}</p>{% endif %}
+
+    <p><a href="{% url 'relationship_app:logout' %}">Logout</a></p>
+    {# You might want an edit profile link here too #}
+    {# Example: <a href="{% url 'relationship_app:edit_profile' %}">Edit Profile</a> #}
+{% endblock content %}

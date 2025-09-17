@@ -1,8 +1,17 @@
-<!DOCTYPE html>
-<html>
-<head><title>Member Dashboard</title></head>
-<body>
+{% extends "relationship_app/base.html" %}
+
+{# relationship_app/templates/member_view.html #}
+{% comment %}
+This template displays the dashboard for a logged-in member.
+It extends the base template for consistent styling and layout.
+{% endcomment %}
+
+{% block title %}Member Dashboard{% endblock %}
+
+{% block content %}
     <h1>Welcome, Member!</h1>
     <p>You can browse and borrow books.</p>
-</body>
-</html>
+    {# Add any member-specific content or links here #}
+    <p><a href="{% url 'relationship_app:profile' %}">View your profile</a></p>
+    <p><a href="{% url 'relationship_app:list_books' %}">Browse books</a></p> {# Assuming you'll have a list_books link here #}
+{% endblock content %}

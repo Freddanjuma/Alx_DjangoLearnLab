@@ -22,8 +22,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-$=g9h7t(tsfv9vhr$+4e0b(dp!_v7=x1w)0&$7@z87=7(b8ca3'
 
+# settings.py (excerpt from the top part of the file)
+
+# ... (all your existing code before DEBUG, like BASE_DIR, SECRET_KEY etc. remains unchanged) ...
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# For production deployment, DEBUG MUST be set to False to prevent
+# exposure of sensitive information (e.g., stack traces).
+DEBUG = True # Keep True for local development
 
 ALLOWED_HOSTS = []
 
@@ -66,6 +72,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'relationship_app.templatetags.relationship_app_context.user_groups_processor'
             ],
         },
     },
@@ -132,3 +139,58 @@ LOGOUT_REDIRECT_URL = "/login/"
 LOGIN_REDIRECT_URL = "relationship_app:redirect_after_login"
 LOGOUT_REDIRECT_URL = "relationship_app:login"  #  redirect to login after logout
 
+
+# settings.py (excerpt from the very bottom of the file)
+
+# ... (all your existing code, for example, STATIC_URL, TEMPLATES, DATABASES, etc., ends above here) ...
+
+# --- Additional Security Headers and Browser Protections ---
+
+# SECURE_BROWSER_XSS_FILTER: Enables the browser's XSS filter.
+# Setting it to True means if an XSS attack is detected,
+# the browser should block the rendering of the page rather than sanitize it.
+SECURE_BROWSER_XSS_FILTER = True
+
+# X_FRAME_OPTIONS: Protects against Clickjacking attacks.
+# 'DENY' prevents your site from being embedded in any iframe.
+# 'SAMEORIGIN' allows embedding only by pages on the same origin.
+# Setting this ensures the X-Frame-Options header is sent, reinforcing protection.
+X_FRAME_OPTIONS = 'DENY'
+
+# SECURE_CONTENT_TYPE_NOSNIFF: Prevents browsers from MIME-sniffing content-types.
+# This forces the browser to strictly follow the 'Content-Type' header,
+# mitigating attacks where an attacker might upload a malicious file
+# disguised as a harmless one (e.g., JavaScript disguised as a JPEG).
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# settings.py (excerpt from the very bottom of the file)
+
+# ... (previous block of security headers you just added) ...
+
+# --- Cookie Security (Primarily for HTTPS in Production) ---
+
+# CSRF_COOKIE_SECURE: Ensures the CSRF cookie is sent only over secure (HTTPS) connections.
+# Set to True in production to prevent cookie interception over insecure channels.
+# Keep as False or commented out for local HTTP development.
+# CSRF_COOKIE_SECURE = True # <--- LEAVE THIS LINE COMMENTED OUT OR SET TO False for local dev
+
+# SESSION_COOKIE_SECURE: Ensures the session cookie is sent only over secure (HTTPS) connections.
+# Set to True in production to prevent cookie interception over insecure channels.
+# Keep as False or commented out for local HTTP development.
+# SESSION_COOKIE_SECURE = True # <--- LEAVE THIS LINE COMMENTED OUT OR SET TO False for local dev
+
+# settings.py (excerpt from the very bottom of the file)
+
+# ... (the SECURE_BROWSER_XSS_FILTER, X_FRAME_OPTIONS, SECURE_CONTENT_TYPE_NOSNIFF you just added) ...
+
+# --- Cookie Security (Primarily for HTTPS in Production) ---
+
+# CSRF_COOKIE_SECURE: Ensures the CSRF cookie is sent only over secure (HTTPS) connections.
+# Set to True in production to prevent cookie interception over insecure channels.
+# Keep as False or commented out for local HTTP development.
+# CSRF_COOKIE_SECURE = True # <--- ADD THIS LINE, COMMENTED OUT
+
+# SESSION_COOKIE_SECURE: Ensures the session cookie is sent only over secure (HTTPS) connections.
+# Set to True in production to prevent cookie interception over insecure channels.
+# Keep as False or commented out for local HTTP development.
+# SESSION_COOKIE_SECURE = True # <--- ADD THIS LINE, COMMENTED OUT

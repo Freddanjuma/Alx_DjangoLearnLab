@@ -1,4 +1,22 @@
 {% extends "relationship_app/base.html" %}
+
+{# relationship_app/templates/edit_book.html #}
+{% comment %}
+This template handles editing an existing book.
+It expects a 'form' context variable (an instance of BookForm)
+and a 'book' context variable.
+{% endcomment %}
+
+{% block title %}Edit Book: {{ book.title }}{% endblock %}
+
 {% block content %}
-  <h2>Edit Book: {{ book.title }} (Permission Required)</h2>
-{% endblock %}
+    <h1>Edit Book: {{ book.title }}</h1>
+    <form method="post">
+        {% csrf_token %} {# Required for CSRF protection #}
+
+        {{ form.as_p }} {# Renders your form fields #}
+
+        <button type="submit">Save Changes</button>
+        <a href="{% url 'library_detail' book.pk %}">Cancel</a> {# Assuming 'library_detail' is your URL for book detail #}
+    </form>
+{% endblock content %}

@@ -1,4 +1,21 @@
 {% extends "relationship_app/base.html" %}
+
+{# relationship_app/templates/add_book.html #}
+{% comment %}
+This template handles the creation of new books.
+It expects a 'form' context variable (an instance of BookForm).
+{% endcomment %}
+
+{% block title %}Add New Book{% endblock %}
+
 {% block content %}
-  <h2>Add Book (Permission Required)</h2>
-{% endblock %}
+    <h1>Add New Book</h1>
+    <form method="post">
+        {% csrf_token %} {# Required for CSRF protection against cross-site request forgery attacks #}
+
+        {{ form.as_p }} {# Renders your form fields #}
+
+        <button type="submit">Create Book</button>
+        <a href="{% url 'list_books' %}">Cancel</a> {# Assuming 'list_books' is your URL for the book list #}
+    </form>
+{% endblock content %}

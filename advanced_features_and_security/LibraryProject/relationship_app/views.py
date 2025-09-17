@@ -1,106 +1,127 @@
 # relationship_app/views.py
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.forms import AuthenticationForm # Keep this standard form
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
 from django.contrib import messages
-from django.contrib.auth.decorators import user_passes_test, permission_required
+from django.contrib.auth.decorators import user_passes_test, permission_required, login_required
 
 # --- Import forms for CustomUser from bookshelf app (where CustomUser now lives) ---
-# If you created CustomUserCreationForm in bookshelf/forms.py
-from bookshelf.forms import CustomUserCreationForm # <-- CHANGED IMPORT PATH
+from bookshelf.forms import CustomUserCreationForm
 
-# --- Import models from bookshelf ---
-from bookshelf.models import Book # Keep this import, it's correct now
-from .forms import BookForm # This is BookForm defined in relationship_app/forms.py
+# --- Import models and forms related to Books from bookshelf app ---
+# These two lines MUST BE UNCOMMENTED and present:
+from bookshelf.models import Book
+from bookshelf.forms import BookForm
 
-# Registration view
-def register_view(request):
-    if request.method == "POST":
-        form = CustomUserCreationForm(request.POST) # Use CustomUserCreationForm
-        if form.is_valid():
-            user = form.save()
-            login(request, user)  # auto login after registration
-            messages.success(request, "Registration successful.")
-            return redirect("relationship_app:login")
-    else:
-        form = CustomUserCreationForm() # Use CustomUserCreationForm
-    return render(request, "relationship_app/register.html", {"form": form})
+# --- Authentication Views ---
 
-# Login view
 def login_view(request):
-    if request.method == "POST":
+    if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
             messages.success(request, f"Welcome back, {user.username}!")
-            return redirect("relationship_app:profile")
+            if user.is_superuser or user.is_staff:
+                return redirect('relationship_app:admin_view')
+            elif user.groups.filter(name='Librarians').exists():
+                return redirect('relationship_app:librarian_view')
+            elif user.groups.filter(name='Members').exists():
+                return redirect('relationship_app:member_view')
+            else:
+                return redirect('relationship_app:profile')
+        else:
+            messages.error(request, "Invalid username or password. Please try again.")
+            form = AuthenticationForm()
     else:
         form = AuthenticationForm()
-    return render(request, "relationship_app/login.html", {"form": form})
+    return render(request, 'relationship_app/login.html', {'form': form})
 
-# Logout view
+
+def register_view(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, f'Account created for {user.username}!')
+            return redirect('relationship_app:login')
+        else: # If form is not valid, the errors will be attached to the form and displayed in the template
+            pass # The template will display form.errors
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'relationship_app/register.html', {'form': form})
+
+
 def logout_view(request):
     logout(request)
     messages.info(request, "You have been logged out.")
-    return render(request, "relationship_app/logout.html")
+    return redirect('relationship_app:login')
 
-# Simple profile view
+# --- Profile View ---
+@login_required
 def profile_view(request):
-    return render(request, "relationship_app/profile.html")
+    return render(request, 'relationship_app/profile_view.html', {})
 
-# Helper functions for role checking
-def is_admin(user):
-    return hasattr(user, "userprofile") and user.userprofile.role == "Admin"
+# --- Role-based Views ---
 
-def is_librarian(user):
-    return hasattr(user, "userprofile") and user.userprofile.role == "Librarian"
-
-def is_member(user):
-    return hasattr(user, "userprofile") and user.userprofile.role == "Member"
-
-@user_passes_test(is_admin)
+@user_passes_test(lambda u: u.is_superuser)
+@login_required
 def admin_view(request):
-    return render(request, "relationship_app/admin_view.html")
+    return render(request, 'relationship_app/admin_view.html', {})
 
-
-@user_passes_test(is_librarian)
+@user_passes_test(lambda u: u.groups.filter(name='Librarians').exists() or u.is_superuser)
+@login_required
 def librarian_view(request):
-    return render(request, "relationship_app/librarian_view.html")
+    return render(request, 'relationship_app/librarian_view.html', {})
 
-
-@user_passes_test(is_member)
+@user_passes_test(lambda u: u.groups.filter(name='Members').exists() or u.is_authenticated)
+@login_required
 def member_view(request):
-    return render(request, "relationship_app/member_view.html")
+    return render(request, 'relationship_app/member_view.html', {})
 
-@permission_required("bookshelf.add_book") # Correct permission name format for Book model in 'bookshelf'
+# --- Secured Book CRUD Views ---
+
+@permission_required('bookshelf.add_book', raise_exception=True)
+@login_required
 def add_book(request):
-    if request.method == "POST":
+    if request.method == 'POST':
         form = BookForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect("relationship_app:book_list") # Assuming you have a book_list URL name
+            book = form.save(commit=False)
+            # You can uncomment and use the line below if you want to automatically set the user who added the book
+            # book.added_by = request.user
+            book.save()
+            messages.success(request, f"Book '{book.title}' added successfully!")
+            return redirect('relationship_app:admin_view') # Or a more appropriate list_books view
+        # If form is not valid, the errors will be attached to the form and displayed in the template
     else:
         form = BookForm()
-    return render(request, "relationship_app/add_book.html", {"form": form})
+    return render(request, 'relationship_app/add_book.html', {'form': form, 'form_type': 'Add'})
 
-@permission_required("bookshelf.change_book") # Correct permission name format
+
+@permission_required('bookshelf.change_book', raise_exception=True)
+@login_required
 def edit_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
-    if request.method == "POST":
+    if request.method == 'POST':
         form = BookForm(request.POST, instance=book)
         if form.is_valid():
-            form.save()
-            return redirect("relationship_app:book_list") # Assuming you have a book_list URL name
+            book = form.save()
+            messages.success(request, f"Book '{book.title}' updated successfully!")
+            return redirect('relationship_app:admin_view') # Or a more appropriate list_books view
+        # If form is not valid, the errors will be attached to the form and displayed in the template
     else:
         form = BookForm(instance=book)
-    return render(request, "relationship_app/edit_book.html", {"form": form})
+    return render(request, 'relationship_app/edit_book.html', {'form': form, 'book': book, 'form_type': 'Edit'})
 
-@permission_required("bookshelf.delete_book") # Correct permission name format
+
+@permission_required('bookshelf.delete_book', raise_exception=True)
+@login_required
 def delete_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
-    if request.method == "POST":
+    if request.method == 'POST':
         book.delete()
-        return redirect("relationship_app:book_list") # Assuming you have a book_list URL name
-    return render(request, "relationship_app/delete_book.html", {"book": book})
+        messages.success(request, f"Book '{book.title}' deleted successfully.")
+        return redirect('relationship_app:admin_view') # Or a more appropriate list_books view
+    return render(request, 'relationship_app/delete_book.html', {'book': book})
