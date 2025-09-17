@@ -1,0 +1,20 @@
+{# LibraryProject/bookshelf/templates/bookshelf/success_example_form.html #}
+
+{# Extends a base template for consistent site-wide layout. #}
+{% extends 'base.html' %}
+
+{# Sets the page title for the success confirmation. #}
+{% block title %}Form Submitted Successfully{% endblock %}
+
+{# Defines the main content area for the success message. #}
+{% block content %}
+    <h2>Form Submitted Successfully!</h2>
+    {# Displays the 'name' passed from the view, automatically escaped. #}
+    <p>Thank you, <strong>{{ name }}</strong>. Your message has been received.</p>
+    
+    {# Navigation links for user convenience. #}
+    <p>
+        <a href="{% url 'bookshelf:example_form' %}">Go back to the example form</a> |
+        <a href="{% url 'bookshelf:book_list' %}">View all books</a>
+    </p>
+{% endblock %}

@@ -1,0 +1,30 @@
+{# LibraryProject/bookshelf/templates/bookshelf/form_example.html #}
+
+{# Extends a base template for consistent site-wide layout and navigation. #}
+{% extends 'base.html' %}
+
+{# Sets the page title dynamically for browser tabs. #}
+{% block title %}Example Form{% endblock %}
+
+{# Defines the main content area of the page. #}
+{% block content %}
+    <h2>Example Form</h2>
+    <p>Please fill out this example form to demonstrate data submission.</p>
+
+    {# The HTML form for submitting data. #}
+    <form method="post">
+        {# Security Note: {% csrf_token %} is CRUCIAL for all POST forms. #}
+        {# It protects against Cross-Site Request Forgery (CSRF) attacks by ensuring #}
+        {# that form submissions originate from your legitimate site. #}
+        {% csrf_token %}
+        
+        {# Renders all form fields as paragraphs automatically. #}
+        {# This is a convenience method; for more control, fields can be rendered individually. #}
+        {# Documentation: Django's template engine automatically escapes user-supplied data #}
+        {# rendered via {{ form.as_p }} or individual fields, preventing XSS attacks. #}
+        {{ form.as_p }}
+        
+        {# Submit button for the form. #}
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+{% endblock %}
