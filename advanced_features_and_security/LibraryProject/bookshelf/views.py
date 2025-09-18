@@ -2,10 +2,10 @@
 
 # Import necessary modules from Django
 from django.shortcuts import render, get_object_or_404, redirect
+from .forms import ExampleForm # Ensure ExampleForm is imported from your forms.py
 from django.contrib import messages # For displaying messages to the user
 
-# Import forms and models from the current 'bookshelf' app
-from .forms import BookForm, ExampleForm # Ensure ExampleForm is imported from your forms.py
+# Import forms and models from the current 'bookshelf' app 
 from .models import Book, Author # Ensure Book and Author models are imported if used directly
 
 # --- Book Management Views ---

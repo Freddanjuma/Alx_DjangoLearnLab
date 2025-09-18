@@ -44,7 +44,7 @@ class BookForm(forms.ModelForm):
     class Meta:
         model = Book # Associate this form with the Book model
         # Specify the fields to be included in the form
-        fields = ["title", "author", "published_date", "isbn", "genre"]
+        fields = ["title", "author", "published_date", "isbn", "genre"] # Ensure "genre" is added if it's in your Book model
         # Security Note: ModelForms provide robust validation against the model's field
         # constraints (e.g., max_length, data types), further enhancing input safety.
 
