@@ -1,0 +1,23 @@
+{% extends 'base.html' %} {# Assuming you have a base.html template #}
+
+{% block title %}Example Form{% endblock %}
+
+{% block content %}
+<h2>Example Form</h2>
+<p>Please fill out this example form to demonstrate data submission.</p>
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %} {# Security Note: This is crucial for CSRF protection in Django forms. #}
+    {{ form.as_p }} {# Render form fields as paragraphs. Django automatically escapes input for XSS prevention. #}
+    <button type="submit">Submit</button>
+</form>
+
+{% endblock %}
