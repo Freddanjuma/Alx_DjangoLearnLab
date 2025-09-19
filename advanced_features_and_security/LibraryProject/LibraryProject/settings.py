@@ -136,8 +136,6 @@ STATIC_URL = 'static/'
 
 # LibraryProject/settings.py
 
-# ... (rest of your settings.py) ...
-
 # --- Security Configuration for HTTPS and Secure Cookies ---
 # Documentation: This section configures essential security measures to protect data
 # transmitted between the client and the server, enforce HTTPS, and secure cookies.
@@ -152,6 +150,20 @@ STATIC_URL = 'static/'
 # This helps prevent man-in-the-middle attacks where an attacker might try to force
 # users onto an insecure HTTP connection.
 SECURE_SSL_REDIRECT = True
+
+
+# SECURE_PROXY_SSL_HEADER: Configures Django to trust the X-Forwarded-Proto header.
+# When your Django application is deployed behind a reverse proxy (like Nginx, Apache,
+# or a cloud load balancer) that handles SSL termination, the proxy often
+# communicates with Django over plain HTTP internally.
+# This setting tells Django to look for the 'X-Forwarded-Proto' HTTP header.
+# If the header's value is 'https', Django will treat the request as secure,
+# even if the internal connection to Django is HTTP. This is crucial for
+# SECURE_SSL_REDIRECT and other HTTPS-dependent features to work correctly
+# in such proxy environments.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
 
 # SECURE_HSTS_SECONDS: Enables HTTP Strict Transport Security (HSTS).
 # HSTS is a web security policy mechanism that helps to protect websites against
