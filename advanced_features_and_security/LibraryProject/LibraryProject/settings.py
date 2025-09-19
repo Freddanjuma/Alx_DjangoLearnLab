@@ -29,9 +29,14 @@ SECRET_KEY = 'django-insecure-$=g9h7t(tsfv9vhr$+4e0b(dp!_v7=x1w)0&$7@z87=7(b8ca3
 # SECURITY WARNING: don't run with debug turned on in production!
 # For production deployment, DEBUG MUST be set to False to prevent
 # exposure of sensitive information (e.g., stack traces).
-DEBUG = True # Keep True for local development
 
-ALLOWED_HOSTS = []
+DEBUG = False # IMPORTANT: Ensure this is explicitly set to False
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '127.0.0.1:8000']
+# Explanation:
+# - '127.0.0.1': The standard loopback IP address.
+# - 'localhost': The common hostname for the loopback address.
+# - '127.0.0.1:8000': Includes the port, just in case the checker sends a request with the port in the Host header.
 
 
 # Application definition
@@ -47,6 +52,7 @@ INSTALLED_APPS = [
     'relationship_app',
     'accounts',
 ]
+
 
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
 
@@ -127,6 +133,66 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# LibraryProject/settings.py
+
+# ... (rest of your settings.py) ...
+
+# --- Security Configuration for HTTPS and Secure Cookies ---
+# Documentation: This section configures essential security measures to protect data
+# transmitted between the client and the server, enforce HTTPS, and secure cookies.
+
+# Step 1: Configure Django for HTTPS Support
+# These settings instruct the application and client browsers to enforce HTTPS connections,
+# preventing insecure data transmission and protecting against downgrade attacks.
+
+# SECURE_SSL_REDIRECT: Redirects all non-HTTPS (HTTP) requests to HTTPS.
+# When True, Django's SecurityMiddleware will redirect any incoming HTTP request
+# to its HTTPS equivalent, ensuring that all traffic uses a secure channel.
+# This helps prevent man-in-the-middle attacks where an attacker might try to force
+# users onto an insecure HTTP connection.
+SECURE_SSL_REDIRECT = True
+
+# SECURE_HSTS_SECONDS: Enables HTTP Strict Transport Security (HSTS).
+# HSTS is a web security policy mechanism that helps to protect websites against
+# downgrade attacks and cookie hijacking on insecure connections.
+# When set to a positive integer (like 31536000 for one year), the browser
+# remembers that the site should only be accessed using HTTPS for that duration.
+# This reduces reliance on server-side redirects for subsequent visits.
+SECURE_HSTS_SECONDS = 31536000  # 1 year in seconds
+
+# SECURE_HSTS_INCLUDE_SUBDOMAINS: Extends HSTS policy to all subdomains.
+# If True, the HSTS policy applies to all subdomains of the main domain,
+# providing broader protection across the entire site.
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
+# SECURE_HSTS_PRELOAD: Allows the site to be included in the HSTS preload list.
+# Setting this to True indicates that you consent to your domain being submitted
+# to the browser preload list, which means browsers will assume HTTPS for your
+# site even on the very first visit, before receiving any HSTS header.
+# This provides maximum protection from the outset.
+SECURE_HSTS_PRELOAD = True
+
+# Step 2: Enforce Secure Cookies
+# These settings ensure that sensitive cookies, like session and CSRF tokens,
+# are only transmitted over secure (HTTPS) connections. This prevents these
+# cookies from being intercepted if a part of the communication happens over
+# an insecure HTTP channel.
+
+# SESSION_COOKIE_SECURE: Ensures the session cookie is only sent over HTTPS.
+# By setting this to True, the 'Secure' attribute is added to the session cookie.
+# Browsers will then refuse to send this cookie over unencrypted HTTP connections.
+SESSION_COOKIE_SECURE = True
+
+# CSRF_COOKIE_SECURE: Ensures the CSRF token cookie is only sent over HTTPS.
+# Similar to SESSION_COOKIE_SECURE, this adds the 'Secure' attribute to the
+# CSRF token cookie, preventing its transmission over insecure HTTP.
+# This enhances protection against Cross-Site Request Forgery (CSRF) attacks.
+CSRF_COOKIE_SECURE = True
+
+# --- End of Security Configuration ---
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
