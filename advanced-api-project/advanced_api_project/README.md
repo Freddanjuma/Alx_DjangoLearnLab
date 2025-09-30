@@ -1,28 +1,30 @@
 # Advanced API Project: Book and Author Management
 
-This project implements a RESTful API for managing authors and their books using Django and Django REST Framework. It provides robust CRUD (Create, Retrieve, Update, Delete) operations, filtering capabilities, and appropriate permission handling.
+This project implements a RESTful API for managing authors and their books using Django and Django REST Framework. It provides robust CRUD (Create, Retrieve, Update, Delete) operations, granular permission handling, advanced filtering capabilities, and custom data validation.
 
 ## Project Structure
 
 The core API logic resides within the `api` Django app, which includes:
--   `api/models.py`: Defines the `Author` and `Book` database models.
--   `api/serializers.py`: Converts model instances to JSON and validates incoming data.
--   `api/filters.py`: Configures custom filters using `django-filter` for enhanced query capabilities.
--   `api/views.py`: Implements API endpoints using Django REST Framework's generic views.
--   `api/urls.py`: Defines the URL routes for the API endpoints.
+-   `api/models.py`: Defines the `Author` and `Book` database models with their fields and relationships.
+-   `api/serializers.py`: Converts model instances to JSON (serialization) and handles incoming data validation (deserialization). Includes custom field-level and object-level validation.
+-   `api/filters.py`: Configures custom filters using `django-filter` to enable sophisticated querying of lists of resources.
+-   `api/views.py`: Implements API endpoints using Django REST Framework's individual generic views (`ListAPIView`, `RetrieveAPIView`, `CreateAPIView`, `UpdateAPIView`, `DestroyAPIView`) for granular control over each CRUD operation.
+-   `api/urls.py`: Defines the URL routes that map HTTP requests to the appropriate API views.
 
 ## Features
 
--   **CRUD Operations:** Full support for creating, reading, updating, and deleting Authors and Books.
--   **Generic Views:** Utilizes DRF's `ListCreateAPIView` and `RetrieveUpdateDestroyAPIView` for efficient and concise view implementation.
--   **Filtering:** Advanced filtering for `Book` and `Author` listings using `django-filter`.
-    -   Books can be filtered by `title` (partial, case-insensitive), `author` (ID), `author_name` (partial, case-insensitive), `isbn` (exact or partial), and `published_date` (exact or range).
-    -   Authors can be filtered by `name` (partial, case-insensitive).
--   **Permissions:** API endpoints are protected to ensure data integrity and user authorization.
-    -   Read-only operations (GET) are accessible to all users (authenticated or unauthenticated).
-    -   Write operations (POST, PUT, PATCH, DELETE) require user authentication.
--   **Custom Validation:** Serializers include custom validation logic to enforce specific business rules (e.g., book titles not purely numeric, ISBN length, unique book titles per author).
--   **Custom Response Handling:** Customized deletion responses for better API feedback.
+-   **Granular CRUD Operations:** Separate API endpoints and views for listing, retrieving, creating, updating, and deleting Authors and Books.
+-   **Generic Views:** Leverages DRF's built-in generic views for efficient and maintainable API development.
+-   **Advanced Filtering:** Provides flexible filtering options for `Book` and `Author` listings using `django-filter`.
+    -   **Books:** Filterable by `title` (partial, case-insensitive), `author` (ID), `author_name` (partial, case-insensitive), `isbn` (partial, case-insensitive), `published_date` (exact, or range using `__gte`, `__lte`).
+    -   **Authors:** Filterable by `name` (partial, case-insensitive).
+-   **Permission-Based Access Control:** API endpoints are protected using DRF's permission classes.
+    -   `GET` requests (read operations for list and detail views) are accessible to all users (authenticated or unauthenticated).
+    -   `POST`, `PUT`, `PATCH`, `DELETE` requests (write/delete operations) require an authenticated user.
+-   **Custom Data Validation:** Serializers incorporate custom validation logic to enforce business rules beyond basic model constraints:
+    -   `Book`: Title cannot be purely numeric, ISBN must be exactly 13 characters (if provided), and a book's title must be unique for a given author.
+    -   `Author`: Name must be at least 3 characters long.
+-   **Custom Response Handling:** Customized `HTTP 204 No Content` deletion responses for Authors and Books provide a user-friendly success message.
 
 ## API Endpoints
 
@@ -32,38 +34,38 @@ All API endpoints are prefixed with `/api/`.
 
 -   **`GET /api/authors/`**:
     -   **Purpose:** List all authors.
-    -   **View:** `AuthorListCreateView` (`generics.ListCreateAPIView`)
-    -   **Permissions:** `permissions.IsAuthenticatedOrReadOnly` (Read-only for all, creation requires authentication).
+    -   **View:** `AuthorListView` (`generics.ListAPIView`)
+    -   **Permissions:** `permissions.IsAuthenticatedOrReadOnly` (Read-only for all users).
     -   **Filtering:** Supports `?name__icontains=value`
--   **`POST /api/authors/`**:
+-   **`POST /api/authors/create/`**:
     -   **Purpose:** Create a new author.
-    -   **View:** `AuthorListCreateView` (`generics.ListCreateAPIView`)
-    -   **Permissions:** `permissions.IsAuthenticatedOrReadOnly` (Requires authentication).
+    -   **View:** `AuthorCreateView` (`generics.CreateAPIView`)
+    -   **Permissions:** `permissions.IsAuthenticated` (Requires authentication).
     -   **Validation:** Custom validation ensures author name is at least 3 characters long.
 -   **`GET /api/authors/<int:pk>/`**:
     -   **Purpose:** Retrieve details of a single author.
-    -   **View:** `AuthorRetrieveUpdateDestroyView` (`generics.RetrieveUpdateDestroyAPIView`)
-    -   **Permissions:** `permissions.IsAuthenticatedOrReadOnly` (Read-only for all).
--   **`PUT /api/authors/<int:pk>/`**:
+    -   **View:** `AuthorDetailView` (`generics.RetrieveAPIView`)
+    -   **Permissions:** `permissions.IsAuthenticatedOrReadOnly` (Read-only for all users).
+-   **`PUT /api/authors/<int:pk>/update/`**:
     -   **Purpose:** Fully update an existing author.
-    -   **View:** `AuthorRetrieveUpdateDestroyView` (`generics.RetrieveUpdateDestroyAPIView`)
-    -   **Permissions:** `permissions.IsAuthenticatedOrReadOnly` (Requires authentication).
--   **`PATCH /api/authors/<int:pk>/`**:
+    -   **View:** `AuthorUpdateView` (`generics.UpdateAPIView`)
+    -   **Permissions:** `permissions.IsAuthenticated` (Requires authentication).
+-   **`PATCH /api/authors/<int:pk>/update/`**:
     -   **Purpose:** Partially update an existing author.
-    -   **View:** `AuthorRetrieveUpdateDestroyView` (`generics.RetrieveUpdateDestroyAPIView`)
-    -   **Permissions:** `permissions.IsAuthenticatedOrReadOnly` (Requires authentication).
--   **`DELETE /api/authors/<int:pk>/`**:
+    -   **View:** `AuthorUpdateView` (`generics.UpdateAPIView`)
+    -   **Permissions:** `permissions.IsAuthenticated` (Requires authentication).
+-   **`DELETE /api/authors/<int:pk>/delete/`**:
     -   **Purpose:** Delete an author.
-    -   **View:** `AuthorRetrieveUpdateDestroyView` (`generics.RetrieveUpdateDestroyAPIView`)
-    -   **Permissions:** `permissions.IsAuthenticatedOrReadOnly` (Requires authentication).
+    -   **View:** `AuthorDeleteView` (`generics.DestroyAPIView`)
+    -   **Permissions:** `permissions.IsAuthenticated` (Requires authentication).
     -   **Custom Behavior:** Returns a `204 No Content` status with a custom success message upon deletion.
 
 ### Books
 
 -   **`GET /api/books/`**:
     -   **Purpose:** List all books.
-    -   **View:** `BookListCreateView` (`generics.ListCreateAPIView`)
-    -   **Permissions:** `permissions.IsAuthenticatedOrReadOnly` (Read-only for all, creation requires authentication).
+    -   **View:** `BookListView` (`generics.ListAPIView`)
+    -   **Permissions:** `permissions.IsAuthenticatedOrReadOnly` (Read-only for all users).
     -   **Filtering Examples:**
         -   `?title__icontains=python`
         -   `?author=1` (filter by author ID)
@@ -72,27 +74,27 @@ All API endpoints are prefixed with `/api/`.
         -   `?published_after=2023-01-01`
         -   `?published_before=2024-01-01`
         -   `?published_date=2023-05-15`
--   **`POST /api/books/`**:
+-   **`POST /api/books/create/`**:
     -   **Purpose:** Create a new book.
-    -   **View:** `BookListCreateView` (`generics.ListCreateAPIView`)
-    -   **Permissions:** `permissions.IsAuthenticatedOrReadOnly` (Requires authentication).
-    -   **Validation:** Custom validation ensures title is not purely numeric, ISBN is 13 characters (if provided), and title is unique per author.
+    -   **View:** `BookCreateView` (`generics.CreateAPIView`)
+    -   **Permissions:** `permissions.IsAuthenticated` (Requires authentication).
+    -   **Validation:** Custom validation ensures title is not purely numeric, ISBN is 13 characters (if provided), and a book's title is unique per author.
 -   **`GET /api/books/<int:pk>/`**:
     -   **Purpose:** Retrieve details of a single book.
-    -   **View:** `BookRetrieveUpdateDestroyView` (`generics.RetrieveUpdateDestroyAPIView`)
-    -   **Permissions:** `permissions.IsAuthenticatedOrReadOnly` (Read-only for all).
--   **`PUT /api/books/<int:pk>/`**:
+    -   **View:** `BookDetailView` (`generics.RetrieveAPIView`)
+    -   **Permissions:** `permissions.IsAuthenticatedOrReadOnly` (Read-only for all users).
+-   **`PUT /api/books/<int:pk>/update/`**:
     -   **Purpose:** Fully update an existing book.
-    -   **View:** `BookRetrieveUpdateDestroyView` (`generics.RetrieveUpdateDestroyAPIView`)
-    -   **Permissions:** `permissions.IsAuthenticatedOrReadOnly` (Requires authentication).
--   **`PATCH /api/books/<int:pk>/`**:
+    -   **View:** `BookUpdateView` (`generics.UpdateAPIView`)
+    -   **Permissions:** `permissions.IsAuthenticated` (Requires authentication).
+-   **`PATCH /api/books/<int:pk>/update/`**:
     -   **Purpose:** Partially update an existing book.
-    -   **View:** `BookRetrieveUpdateDestroyView` (`generics.RetrieveUpdateDestroyAPIView`)
-    -   **Permissions:** `permissions.IsAuthenticatedOrReadOnly` (Requires authentication).
--   **`DELETE /api/books/<int:pk>/`**:
+    -   **View:** `BookUpdateView` (`generics.UpdateAPIView`)
+    -   **Permissions:** `permissions.IsAuthenticated` (Requires authentication).
+-   **`DELETE /api/books/<int:pk>/delete/`**:
     -   **Purpose:** Delete a book.
-    -   **View:** `BookRetrieveUpdateDestroyView` (`generics.RetrieveUpdateDestroyAPIView`)
-    -   **Permissions:** `permissions.IsAuthenticatedOrReadOnly` (Requires authentication).
+    -   **View:** `BookDeleteView` (`generics.DestroyAPIView`)
+    -   **Permissions:** `permissions.IsAuthenticated` (Requires authentication).
     -   **Custom Behavior:** Returns a `204 No Content` status with a custom success message upon deletion.
 
 ## Setup and Local Development
@@ -115,38 +117,4 @@ To run this project locally:
 
 3.  **Install Dependencies:**
     ```bash
-    pip install django djangorestframework django-filter
-    ```
-
-4.  **Apply Database Migrations:**
-    ```bash
-    python manage.py makemigrations api
-    python manage.py migrate
-    ```
-
-5.  **Create a Superuser (for Admin panel and authenticated testing):**
-    ```bash
-    python manage.py createsuperuser
-    ```
-    Follow the prompts to create your superuser credentials.
-
-6.  **Run the Development Server:**
-    ```bash
-    python manage.py runserver
-    ```
-
-    The API will be available at `http://127.0.0.1:8000/api/`.
-
-## Testing the API
-
--   **Browsable API:** Access `http://127.0.0.1:8000/api/authors/` or `http://127.0.0.1:8000/api/books/` in your browser. You can test GET requests directly. For POST, PUT, DELETE, log in using the top-right corner form with your superuser credentials.
--   **Command-line (curl):**
-    -   **GET (unauthenticated):**
-        ```bash
-        curl [http://127.0.0.1:8000/api/books/](http://127.0.0.1:8000/api/books/)
-        ```
-    -   **POST (requires authentication token or session):** For actual testing via `curl` or Postman, you'd typically need to obtain an authentication token first. For the purpose of this task, testing via the browsable API after logging in with the superuser is sufficient to demonstrate permissions.
--   **Permissions:** Verify that `POST`, `PUT`, `PATCH`, `DELETE` requests fail with `403 Forbidden` if you are not logged in, but succeed after authentication.
--   **Validation:** Test serializer validation by attempting to create an author with a very short name or a book with a purely numeric title (if you implemented those specific custom validations).
-
----
+    pip install django djangorest
