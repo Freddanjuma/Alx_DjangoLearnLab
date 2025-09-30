@@ -6,6 +6,10 @@ from .views import (
     BookRetrieveUpdateDestroyView
 )
 
+"""
+URL patterns for the 'api' application.
+Defines endpoints for CRUD operations on Author and Book models.
+"""
 urlpatterns = [
     # Author URLs
     path('authors/', AuthorListCreateView.as_view(), name='author-list-create'),
