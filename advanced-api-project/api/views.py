@@ -1,5 +1,6 @@
-from rest_framework import generics, permissions, status # Ensure 'status' is imported
-from rest_framework.response import Response # Ensure 'Response' is imported
+from rest_framework import generics,  
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated # ADD THIS LINE
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Author, Book
 from .serializers import AuthorSerializer, BookSerializer
@@ -14,7 +15,7 @@ class AuthorListView(generics.ListAPIView):
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly] # Use direct class name
     filter_backends = [DjangoFilterBackend]
     filterset_class = AuthorFilter
 
@@ -25,7 +26,7 @@ class AuthorDetailView(generics.RetrieveAPIView):
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly] # Use direct class name
 
 class AuthorCreateView(generics.CreateAPIView):
     """
@@ -34,7 +35,7 @@ class AuthorCreateView(generics.CreateAPIView):
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [permissions.IsAuthenticated] # Only authenticated users can create
+    permission_classes = [IsAuthenticated] # Use direct class name
 
 class AuthorUpdateView(generics.UpdateAPIView):
     """
@@ -43,7 +44,7 @@ class AuthorUpdateView(generics.UpdateAPIView):
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [permissions.IsAuthenticated] # Only authenticated users can update
+    permission_classes = [IsAuthenticated] # Use direct class name
 
 class AuthorDeleteView(generics.DestroyAPIView):
     """
@@ -52,8 +53,8 @@ class AuthorDeleteView(generics.DestroyAPIView):
     Returns a custom success message upon deletion.
     """
     queryset = Author.objects.all()
-    serializer_class = AuthorSerializer # Serializer is technically optional for Destroy, but good practice
-    permission_classes = [permissions.IsAuthenticated] # Only authenticated users can delete
+    serializer_class = AuthorSerializer
+    permission_classes = [IsAuthenticated] # Use direct class name
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -70,7 +71,7 @@ class BookListView(generics.ListAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly] # Use direct class name
     filter_backends = [DjangoFilterBackend]
     filterset_class = BookFilter
 
@@ -81,7 +82,7 @@ class BookDetailView(generics.RetrieveAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly] # Use direct class name
 
 class BookCreateView(generics.CreateAPIView):
     """
@@ -90,7 +91,7 @@ class BookCreateView(generics.CreateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated] # Only authenticated users can create
+    permission_classes = [IsAuthenticated] # Use direct class name
 
 class BookUpdateView(generics.UpdateAPIView):
     """
@@ -99,7 +100,7 @@ class BookUpdateView(generics.UpdateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated] # Only authenticated users can update
+    permission_classes = [IsAuthenticated] # Use direct class name
 
 class BookDeleteView(generics.DestroyAPIView):
     """
@@ -108,8 +109,8 @@ class BookDeleteView(generics.DestroyAPIView):
     Returns a custom success message upon deletion.
     """
     queryset = Book.objects.all()
-    serializer_class = BookSerializer # Serializer is technically optional for Destroy, but good practice
-    permission_classes = [permissions.IsAuthenticated] # Only authenticated users can delete
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated] # Use direct class name
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
