@@ -4,40 +4,35 @@ from .models import Book, Author
 class BookFilter(django_filters.FilterSet):
     """
     A filterset for the Book model, providing advanced filtering capabilities.
-    All filterable fields are explicitly defined to allow for custom lookups
-    and to prevent conflicts with django-filter's default Meta.fields processing.
+    Configured with specific filters for exact matches, partial matches, and date ranges.
     """
-    # Custom CharFilter for 'title', allowing case-insensitive partial matches.
-    title = django_filters.CharFilter(lookup_expr='icontains', field_name='title')
-    # Custom CharFilter for 'isbn', allowing case-insensitive partial matches.
-    isbn = django_filters.CharFilter(lookup_expr='icontains', field_name='isbn')
+    title = django_filters.CharFilter(lookup_expr='icontains', field_name='title', help_text="Case-insensitive partial match on book title.")
+    isbn = django_filters.CharFilter(lookup_expr='icontains', field_name='isbn', help_text="Case-insensitive partial match on ISBN.")
 
-    # Custom ModelChoiceFilter for 'author', allowing filtering by Author ID.
-    author = django_filters.ModelChoiceFilter(queryset=Author.objects.all())
-    # Custom CharFilter for 'author_name', allowing case-insensitive partial matches on the author's name.
-    author_name = django_filters.CharFilter(field_name='author__name', lookup_expr='icontains')
+    # Filter by Author ID
+    author = django_filters.ModelChoiceFilter(queryset=Author.objects.all(), help_text="Filter by Author ID.")
+    # Filter by Author's Name (case-insensitive partial match)
+    author_name = django_filters.CharFilter(field_name='author__name', lookup_expr='icontains', help_text="Case-insensitive partial match on author's name.")
 
-    # Custom DateFilters for published date range queries (greater than or equal to, less than or equal to).
-    published_after = django_filters.DateFilter(field_name='published_date', lookup_expr='gte')
-    published_before = django_filters.DateFilter(field_name='published_date', lookup_expr='lte')
-    # Custom DateFilter for exact published date match.
-    published_date = django_filters.DateFilter(field_name='published_date', lookup_expr='exact')
+    # Date range filters for published_date
+    published_after = django_filters.DateFilter(field_name='published_date', lookup_expr='gte', help_text="Filter books published on or after a specific date (YYYY-MM-DD).")
+    published_before = django_filters.DateFilter(field_name='published_date', lookup_expr='lte', help_text="Filter books published on or before a specific date (YYYY-MM-DD).")
+    published_date = django_filters.DateFilter(field_name='published_date', lookup_expr='exact', help_text="Filter books published on an exact date (YYYY-MM-DD).")
 
+    # Explicit filter for publication_year 
+    publication_year = django_filters.NumberFilter(field_name='published_date__year', lookup_expr='exact', help_text="Filter books published in a specific year (YYYY).")
 
     class Meta:
         model = Book
-        # With all desired filter fields explicitly defined above, Meta.fields can be empty.
-        # This prevents django-filter from auto-generating conflicting filters.
+        # All filterable fields are defined explicitly above to leverage custom lookups and help_text.
         fields = []
 
 class AuthorFilter(django_filters.FilterSet):
     """
     A filterset for the Author model, providing filtering by name.
     """
-    # Custom CharFilter for 'name', allowing case-insensitive partial matches.
-    name = django_filters.CharFilter(lookup_expr='icontains', field_name='name')
+    name = django_filters.CharFilter(lookup_expr='icontains', field_name='name', help_text="Case-insensitive partial match on author's name.")
 
     class Meta:
         model = Author
-        # Since 'name' is explicitly defined above, Meta.fields can be empty.
         fields = []

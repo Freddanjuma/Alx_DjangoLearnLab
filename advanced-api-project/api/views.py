@@ -1,10 +1,11 @@
 from rest_framework import generics, status  
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated # ADD THIS LINE
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated 
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Author, Book
 from .serializers import AuthorSerializer, BookSerializer
 from .filters import AuthorFilter, BookFilter
+from rest_framework import filters 
 
 # --- Author Views ---
 class AuthorListView(generics.ListAPIView):
@@ -71,7 +72,7 @@ class BookListView(generics.ListAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly] # Use direct class name
+    permission_classes = [IsAuthenticatedOrReadOnly] 
     filter_backends = [DjangoFilterBackend]
     filterset_class = BookFilter
 
@@ -82,7 +83,7 @@ class BookDetailView(generics.RetrieveAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly] # Use direct class name
+    permission_classes = [IsAuthenticatedOrReadOnly] 
 
 class BookCreateView(generics.CreateAPIView):
     """
@@ -91,7 +92,7 @@ class BookCreateView(generics.CreateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated] # Use direct class name
+    permission_classes = [IsAuthenticated] 
 
 class BookUpdateView(generics.UpdateAPIView):
     """
@@ -100,7 +101,7 @@ class BookUpdateView(generics.UpdateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated] # Use direct class name
+    permission_classes = [IsAuthenticated] 
 
 class BookDeleteView(generics.DestroyAPIView):
     """
@@ -110,7 +111,7 @@ class BookDeleteView(generics.DestroyAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticated] # Use direct class name
+    permission_classes = [IsAuthenticated] 
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
