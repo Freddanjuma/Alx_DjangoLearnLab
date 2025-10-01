@@ -1,12 +1,11 @@
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
-from django_filters import rest_framework 
-from rest_framework import generics, status
+from rest_framework import generics, status  
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated 
 from django_filters.rest_framework import DjangoFilterBackend
-
 from .models import Author, Book
 from .serializers import AuthorSerializer, BookSerializer
 from .filters import AuthorFilter, BookFilter
-
+from rest_framework import filters 
 # --- Author Views ---
 class AuthorListView(generics.ListAPIView):
     """
@@ -67,14 +66,24 @@ class AuthorDeleteView(generics.DestroyAPIView):
 class BookListView(generics.ListAPIView):
     """
     API endpoint that allows for listing all Books.
-    Unauthenticated users have read-only access.
-    Supports filtering.
+    Integrates advanced filtering, searching, and ordering capabilities for enhanced data retrieval.
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly] 
-    filter_backends = [DjangoFilterBackend]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    # Configure FilterBackends for Filtering, Searching, and Ordering
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+
+    # Specific FilterSet for DjangoFilterBackend (Step 1)
     filterset_class = BookFilter
+
+    # Fields for SearchFilter (Step 2)
+    search_fields = ['title', 'author__name', 'isbn']
+
+    # Fields for OrderingFilter (Step 3)
+    ordering_fields = ['title', 'published_date', 'isbn', 'author__name']
+    ordering = ['title']
 
 class BookDetailView(generics.RetrieveAPIView):
     """
