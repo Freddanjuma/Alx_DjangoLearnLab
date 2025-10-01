@@ -1,11 +1,11 @@
-from rest_framework import generics, status  
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated 
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from django_filters import rest_framework 
+from rest_framework import generics, status
 from django_filters.rest_framework import DjangoFilterBackend
+
 from .models import Author, Book
 from .serializers import AuthorSerializer, BookSerializer
 from .filters import AuthorFilter, BookFilter
-from rest_framework import filters 
 
 # --- Author Views ---
 class AuthorListView(generics.ListAPIView):
