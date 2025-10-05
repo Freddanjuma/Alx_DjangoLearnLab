@@ -1,8 +1,14 @@
 {% extends 'blog/base.html' %}
+{% load static %} {# Ensure static is loaded for consistency #}
 
 {% block title %}Login{% endblock %}
 
 {% block content %}
-    <h1>Login to Your Account</h1>
-    <p>This is where the login form will go.</p>
+    <h1>Login</h1>
+    <form method="post">
+        {% csrf_token %} {# CRUCIAL FOR CSRF PROTECTION #}
+        {{ form.as_p }} {# Renders the form fields as paragraphs #}
+        <button type="submit">Login</button>
+    </form>
+    <small>Need an account? <a href="{% url 'register' %}">Register Now</a></small>
 {% endblock %}

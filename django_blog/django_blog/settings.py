@@ -127,3 +127,19 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Authentication settings
+LOGIN_REDIRECT_URL = 'home'  # This redirect after successful login
+LOGOUT_REDIRECT_URL = 'home' # This redirect after successful logout
+LOGIN_URL = 'login' # Django will use this to redirect unauthenticated users
+
+# Django Messages (But optional, for basic styling if you use Bootstrap or similar)
+from django.contrib.messages import constants as messages_constants
+MESSAGE_TAGS = {
+    messages_constants.DEBUG: 'debug',
+    messages_constants.INFO: 'info',
+    messages_constants.SUCCESS: 'success',
+    messages_constants.WARNING: 'warning',
+    messages_constants.ERROR: 'danger', # 'error' changed to 'danger' for common CSS frameworks
+}
