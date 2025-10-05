@@ -79,6 +79,9 @@ DATABASES = {
         'NAME': 'db.sqlite3',
          'USER': '',
           'PORT': '',
+          'PASSWORD': '',
+          'HOST': '',
+          
     }
 }
 
