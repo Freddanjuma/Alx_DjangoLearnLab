@@ -1,22 +1,14 @@
-# django_blog/blog/views.py
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .forms import CustomUserCreationForm, CustomUserChangeForm
-
-# --- ENSURE THIS FUNCTION IS HERE AND CORRECT ---
-def home_view(request):
-    return render(request, 'blog/base.html', {})
-# ------------------------------------------------
-
-def post_list_view(request):
-    return render(request, 'blog/post_list.html', {})
-
-def register_view(request):
-    # ... (your register_view code) ...
-    pass # Placeholder
+from django.contrib.auth.models import User
 
 @login_required
 def profile_view(request):
-    # ... (your profile_view code) ...
-    pass # Placeholder
+    if request.method == 'POST':
+        user = request.user
+        user.username = request.POST.get('username', user.username)
+        user.email = request.POST.get('email', user.email)
+        user.save()
+        return redirect('profile')
+
+    return render(request, 'blog/profile.html', {'user': request.user})
