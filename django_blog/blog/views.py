@@ -1,15 +1,17 @@
-from django.shortcuts import render
-def post_list_view(request):
-    return render(request, 'blog/post_list.html')
-
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .forms import CustomUserChangeForm
-
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
+from .models import Post
+from .forms import CustomUserChangeForm
 
+# 📝 View: List all posts
+def post_list_view(request):
+    posts = Post.objects.all()
+    return render(request, 'blog/post_list.html', {'posts': posts})
+
+
+# 🧍‍♂️ View: Register new user
 def register_view(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -21,6 +23,8 @@ def register_view(request):
         form = UserCreationForm()
     return render(request, 'blog/register.html', {'form': form})
 
+
+# 👤 View: Profile (view & edit)
 @login_required
 def profile_view(request):
     if request.method == 'POST':
