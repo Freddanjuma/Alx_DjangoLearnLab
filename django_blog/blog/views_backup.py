@@ -4,22 +4,21 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import CustomUserCreationForm, UserUpdateForm, PostForm, CommentForm
 
+# Class-based view imports
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-from django.db.models import Q
-
 from .models import Post, Comment
-from taggit.models import Tag  # <-- taggit's Tag model
 
 
 def register_view(request):
+    """Handle user registration (GET shows form, POST creates user)."""
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user)  # sign in immediately after registration
             messages.success(request, "Registration successful.")
             return redirect('blog:profile')
     else:
@@ -29,6 +28,10 @@ def register_view(request):
 
 @login_required
 def profile_view(request):
+    """
+    Allow authenticated users to view and edit profile details.
+    Handles POST requests to update user information (email, first_name, last_name).
+    """
     if request.method == "POST":
         form = UserUpdateForm(request.POST, instance=request.user)
         if form.is_valid():
@@ -40,64 +43,42 @@ def profile_view(request):
     return render(request, 'blog/profile.html', {'form': form})
 
 
-# ------------------------------
-# Post CRUD views
-# ------------------------------
+# ------------------------------------
+# Post CRUD views (class-based views)
+# ------------------------------------
 
 class PostListView(ListView):
     model = Post
-    template_name = 'blog/post_list.html'
+    template_name = 'blog/post_list.html'   # blog/templates/blog/post_list.html
     context_object_name = 'posts'
-    paginate_by = 10
-
-
-class PostByTagListView(ListView):
-    """
-    List posts filtered by tag slug (URL: tags/<slug:tag_slug>/).
-    Checker looks for PostByTagListView.as_view() in urls.py.
-    """
-    model = Post
-    template_name = 'blog/posts_by_tag.html'
-    context_object_name = 'posts'
-    paginate_by = 10
-
-    def get_queryset(self):
-        tag_slug = self.kwargs.get('tag_slug')
-        tag = get_object_or_404(Tag, slug__iexact=tag_slug)
-        return Post.objects.filter(tags__slug__iexact=tag.slug).distinct()
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        tag_slug = self.kwargs.get('tag_slug')
-        ctx['tag'] = get_object_or_404(Tag, slug__iexact=tag_slug)
-        return ctx
+    paginate_by = 10  # optional
 
 
 class PostDetailView(DetailView):
     model = Post
-    template_name = 'blog/post_detail.html'
+    template_name = 'blog/post_detail.html'  # blog/templates/blog/post_detail.html
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
+    """
+    Create a new post. Only authenticated users may create posts.
+    """
     model = Post
     form_class = PostForm
     template_name = 'blog/post_form.html'
     success_url = reverse_lazy('blog:post-list')
-    login_url = 'login'
+    login_url = 'login'  # assumes a 'login' named URL exists
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        response = super().form_valid(form)
-
-        # Handle tags (taggit expects a list of strings)
-        tags_str = form.cleaned_data.get('tags', '')
-        tag_names = [t.strip() for t in tags_str.split(',') if t.strip()]
-        self.object.tags.set(tag_names)  # taggit auto-creates tags
         messages.success(self.request, "Post created successfully.")
-        return response
+        return super().form_valid(form)
 
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    Update an existing post. Only the post's author may update it.
+    """
     model = Post
     form_class = PostForm
     template_name = 'blog/post_form.html'
@@ -105,67 +86,77 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     login_url = 'login'
 
     def test_func(self):
-        return self.get_object().author == self.request.user
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        tags_str = form.cleaned_data.get('tags', '')
-        tag_names = [t.strip() for t in tags_str.split(',') if t.strip()]
-        self.object.tags.set(tag_names)
-        messages.success(self.request, "Post updated successfully.")
-        return response
+        # Ensures only the author can edit
+        post = self.get_object()
+        return self.request.user == post.author
 
     def handle_no_permission(self):
+        # Provide a friendly message and default behavior
         messages.error(self.request, "You do not have permission to edit this post.")
         return super().handle_no_permission()
 
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    Delete a post. Only the post's author may delete it.
+    """
     model = Post
     template_name = 'blog/post_confirm_delete.html'
     success_url = reverse_lazy('blog:post-list')
     login_url = 'login'
 
     def test_func(self):
-        return self.get_object().author == self.request.user
+        # Ensures only the author can delete
+        post = self.get_object()
+        return self.request.user == post.author
 
     def handle_no_permission(self):
         messages.error(self.request, "You do not have permission to delete this post.")
         return super().handle_no_permission()
 
 
-# ------------------------------
-# Comment CRUD views
-# ------------------------------
+# ------------------------------------
+# Comment views (CRUD)
+# ------------------------------------
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
+    """
+    Create a comment for a given post (URL must provide post_id).
+    """
     model = Comment
     form_class = CommentForm
-    template_name = 'blog/comments/comment_form.html'
+    template_name = 'blog/comments/comment_form.html'  # create this template
     login_url = 'login'
 
     def dispatch(self, request, *args, **kwargs):
+        # Ensure the post exists and store it on the view
         self.post = get_object_or_404(Post, pk=kwargs.get('post_id'))
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        # Set author and related post before saving
         form.instance.author = self.request.user
         form.instance.post = self.post
         messages.success(self.request, "Comment posted.")
         return super().form_valid(form)
 
     def get_success_url(self):
+        # Redirect back to the post detail page
         return reverse('blog:post-detail', kwargs={'pk': self.post.pk})
 
 
 class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    Update an existing comment. Only the comment author may update.
+    """
     model = Comment
     form_class = CommentForm
     template_name = 'blog/comments/comment_form.html'
     login_url = 'login'
 
     def test_func(self):
-        return self.get_object().author == self.request.user
+        comment = self.get_object()
+        return comment.author == self.request.user
 
     def handle_no_permission(self):
         messages.error(self.request, "You do not have permission to edit this comment.")
@@ -176,12 +167,16 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    Delete an existing comment. Only the comment author may delete.
+    """
     model = Comment
     template_name = 'blog/comments/comment_confirm_delete.html'
     login_url = 'login'
 
     def test_func(self):
-        return self.get_object().author == self.request.user
+        comment = self.get_object()
+        return comment.author == self.request.user
 
     def handle_no_permission(self):
         messages.error(self.request, "You do not have permission to delete this comment.")
@@ -192,28 +187,9 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 
 def comment_list(request, post_id):
+    """
+    Optional explicit view to list comments for a post.
+    """
     post = get_object_or_404(Post, pk=post_id)
     comments = post.comments.all()
     return render(request, 'blog/comments/comment_list.html', {'post': post, 'comments': comments})
-
-
-# ------------------------------
-# Search and tag views
-# ------------------------------
-
-def search_view(request):
-    query = request.GET.get('q', '').strip()
-    posts = Post.objects.none()
-    if query:
-        posts = Post.objects.filter(
-            Q(title__icontains=query) |
-            Q(content__icontains=query) |
-            Q(tags__name__icontains=query)
-        ).distinct()
-    return render(request, 'blog/search_results.html', {'query': query, 'posts': posts})
-
-
-def posts_by_tag(request, tag_name):
-    tag = get_object_or_404(Tag, name__iexact=tag_name)
-    posts = Post.objects.filter(tags__name__iexact=tag_name)
-    return render(request, 'blog/posts_by_tag.html', {'tag': tag, 'posts': posts})

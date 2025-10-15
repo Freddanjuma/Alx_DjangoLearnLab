@@ -1,8 +1,8 @@
-from taggit.forms import TagWidget
-from django import forms
+from django import forms 
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
+# Import your Post model for the ModelForm
 from .models import Post, Comment
 
 
@@ -25,15 +25,11 @@ class UserUpdateForm(forms.ModelForm):
 
 
 class PostForm(forms.ModelForm):
-    """
-    Post form with TaggableManager support using TagWidget from taggit.
-    """
     class Meta:
         model = Post
-        fields = ['title', 'content', 'tags']  # include taggable field
+        fields = ['title', 'content']
         widgets = {
             'content': forms.Textarea(attrs={'rows': 10}),
-            'tags': TagWidget(),  # <-- required by checker
         }
 
 
@@ -62,4 +58,3 @@ class CommentForm(forms.ModelForm):
         if len(content) < 3:
             raise forms.ValidationError('Comment is too short (min 3 characters).')
         return content
-
